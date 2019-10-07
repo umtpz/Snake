@@ -1,0 +1,243 @@
+<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+	<table></table>
+	<!--
+	<br>
+	<button onclick="setDirection('up')">up</button>
+	<button onclick="setDirection('left')">left</button>
+	<button onclick="setDirection('right')">right</button>
+	<button onclick="setDirection('down')">down</button>
+	-->
+</body>
+</html>
+
+<style type="text/css">
+	table{
+		border: solid 2px black;
+	}
+	tr{
+		width: 10px; height: 10px;
+	}
+	td{
+		width: 16px; height: 20px;
+		border: solid 1px transparent;
+		border-radius: 4px;
+	}
+</style>
+
+<script type="text/javascript">
+	
+	var width = 30, height = 30;
+	var x = parseInt(width/2), y=parseInt(height/2);
+	var xArr = [parseInt(width/2)];
+	var yArr = [parseInt(height/2)];
+	var direction = "down", directionTemp = "down";
+	var score = 2;
+	var snackX, snackY;
+	var isSnackVisible = false;
+	var moveInterval, snackInterval;
+	$(function()
+	{
+		var td = "";
+
+		for (var i = 0; i < width; i++) {
+			td += "<td></td>";
+		}
+		for (var j = 0; j < height; j++) {
+			$("table").append("<tr>"+td+"</tr>");
+		}
+		
+		$("tr:eq("+y+")").children("td:eq("+x+")").css("background","green");
+
+		moveInterval = setInterval(function() //move snake
+		{
+			move();
+			console.log(xArr.length);
+		},100);
+		snackInterval = setInterval(function()
+		{
+			putSnack();
+		},3000)
+	})
+
+	function putSnack()
+	{
+		if(!isSnackVisible)
+		{
+			
+			isSnackVisible = true;
+			snackX = Math.floor(Math.random() * (width) );
+			snackY = Math.floor(Math.random() * (height) );
+			
+		}		
+	}
+
+	function move()
+	{
+
+		if(snackX != null && snackY != null && isSnackVisible)
+		{
+			$("tr:eq("+snackY+")").children("td:eq("+snackX+")").css("background","blue");
+		}
+
+		try{
+			for(var k = xArr.length-1; k >= xArr.length-score; k--)
+			{
+				var yo = $("tr:eq("+yArr[k]+")").children("td:eq("+xArr[k]+")");
+				if(xArr.length-1 == k)
+				{
+					if(yo.css("background") != "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box" && yo.css("background") != "rgb(0, 0, 255) none repeat scroll 0% 0% / auto padding-box border-box" && score != 2)
+					{
+						for(var k = xArr.length-1; k >= xArr.length-score; k--)
+						{
+							if(xArr.length-1 == k)
+							{
+								$("tr:eq("+yArr[k]+")").children("td:eq("+xArr[k]+")").css("background","#f80");
+							}
+							else
+							{
+								$("tr:eq("+yArr[k]+")").children("td:eq("+xArr[k]+")").css("background","red");
+							}
+						}
+
+						clearInterval(snackInterval);
+						clearInterval(moveInterval);
+						setTimeout(function(){
+							alert("Score: " + score);
+						},2000);
+						
+					}
+					yo.css("background","#f80");
+				}
+				else
+				{
+					$("tr:eq("+yArr[k]+")").children("td:eq("+xArr[k]+")").css("background","green");
+				}
+			}
+			
+		}
+		catch{
+
+		}
+		
+		
+
+		if (direction == "right") {
+			
+			x++;
+
+			if(x >= width)
+			{
+				x=0;
+			}
+		}
+		else if (direction == "left") {
+			
+			x--;
+
+			if(x < 0)
+			{
+				x=width-1;
+			}
+		}
+		else if (direction == "up") {
+			
+			y--;
+
+			if(y < 0)
+			{
+				y=height-1;
+			}
+		}
+		else if (direction == "down") {
+			
+			y++;
+
+			if(y >= height)
+			{
+				y = 0;
+			}
+		}
+
+		/*if(xArr.includes(x) && yArr.includes(y))
+		{	
+			if(xArr.indexOf(x) == yArr.indexOf(y))
+			{
+				for(var k = xArr.length-1; k >= xArr.length-score; k--)
+				{
+					if(xArr.length-1 == k)
+					{
+						$("tr:eq("+yArr[k]+")").children("td:eq("+xArr[k]+")").css("background","#f80");
+					}
+					else
+					{
+						$("tr:eq("+yArr[k]+")").children("td:eq("+xArr[k]+")").css("background","red");
+					}
+				}
+				alert("Score: " + score);
+			}
+		}*/
+
+		xArr.push(x);
+		yArr.push(y);
+
+
+		if(snackY == y && snackX == x)
+		{
+			score++;
+			isSnackVisible = false;
+		}
+
+		if(xArr.length-1 > score)
+		{
+			$("tr:eq("+yArr.shift()+")").children("td:eq("+xArr.shift()+")").css("background","transparent");
+		}
+
+		direction = directionTemp
+
+	}
+
+	document.onkeydown = checkKey;
+
+	function checkKey(e) {
+
+	    e = e || window.event;
+
+	    if (e.keyCode == '38') {
+	        // up arrow
+	        setDirection("up");
+	    }
+	    else if (e.keyCode == '40') {
+	        // down arrow
+	        setDirection("down");
+	    }
+	    else if (e.keyCode == '37') {
+	       // left arrow
+	        setDirection("left");
+	    }
+	    else if (e.keyCode == '39') {
+	       // right arrow
+	        setDirection("right");
+	    }
+
+	}
+	function setDirection(dir){
+		if(direction=="up" && dir == "down")
+			return;
+		if(direction=="down" && dir == "up")
+			return;
+		if(direction=="left" && dir == "right")
+			return;
+		if(direction=="right" && dir == "left")
+			return;
+		directionTemp = dir;
+	}
+
+
+</script>
